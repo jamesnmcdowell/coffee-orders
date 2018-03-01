@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Coffee Order</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+</head>
+<body>
+  <section>
+    <div class="panel z-depth-1">
+      <div class="panel-contents">
+        <form data-coffee-order="form">
+          <div class="input-field">
+            <input id="coffeeOrder" type="text" class="validate form-control" name="order">
+            <label for="coffeeOrder">Coffee Order</label>
+          </div>
+          <div class="input-field">
+            <input id="last_name" type="text" class="validate" name='lastName'>
+            <label for="last_name">Last Name</label>
+          </div>
+          <div class="input-field">
+            <input name='email' id="email" type="email" class="validate">
+            <label for="email" data-error="invalid" data-success="looks good!">Email</label>
+          </div>
+          <div class="radio">
+            <input class="with-gap" name="size" type="radio" id="test1" value="short" />
+            <label for="test1">Short</label>
+          </div>
+          <div class="radio">
+            <input class="with-gap" name="size" type="radio" id="test2" value="tall" checked />
+            <label for="test2">Tall</label>
+          </div>
+          <div class="radio">
+            <input class="with-gap" name="size" type="radio" id="test3" value="Grande" />
+            <label for="test3">Grande</label>
+          </div>
+          <select id="flavorShot" class="form-control" name="flavor">
+            <option value="None" disabled selected>Choose your option</option>
+            <option value="">None</option>
+            <option value="caramel">Caramel</option>
+            <option value="almond">Almond</option>
+            <option value="mocha">Mocha</option>
+          </select>
+          <label for="flavorShot">Flavor Shot</label>
+          <div class="form-group">
+            <label for="strengthLevel">Caffeine Rating</label>
+            <p class="range-field">
+              <input name="strength" id="strengthLevel" type="range" value="3" min="0" max="10">
+            </p>
+          </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+          <button type="reset" class="btn btn-default">Reset</button>
+        </form>
+      </div>
+    </div>
+    <div class="grid-container">
+    </div>
+  </section>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('select').material_select();
+    });
+  </script>
+  <script type="text/javascript" src="script.js"></script>
+</body>
+
+</html>
