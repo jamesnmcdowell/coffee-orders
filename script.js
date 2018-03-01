@@ -27,6 +27,7 @@ let render = function () {
     let cardActionDiv = document.createElement('div');
     let cardAction1 = document.createElement('a');
     let cardAction2 = document.createElement('a');
+    let cardAction3 = document.createElement('a');
 
     let lastName = document.createElement('li');
     let email = document.createElement('li');
@@ -44,6 +45,7 @@ let render = function () {
     cardContentDiv.appendChild(cardContentUl);
     cardActionDiv.appendChild(cardAction1);
     cardActionDiv.appendChild(cardAction2);
+    cardActionDiv.appendChild(cardAction3);
     cardWrapperDiv.appendChild(cardContentDiv);
     cardWrapperDiv.appendChild(cardActionDiv);
     cardDiv.appendChild(cardWrapperDiv);
@@ -64,22 +66,30 @@ let render = function () {
     flavor.textContent = obj.flavor;
     strength.textContent = obj.strength;
     cardAction1.textContent = "Delay";
-    cardAction2.textContent = "Delete" + i;
+    cardAction2.textContent = "Prioritize";
+    cardAction3.textContent = "Delete";
 
     gridContainer.appendChild(cardDiv);
 
-    cardAction2.addEventListener('click', function (event) {
-      orderArr.splice(i, 1);
-      render();
-    })
     cardAction1.addEventListener('click', function (event) {
       if (i < orderArr.length - 1) {
         let currentCard = orderArr.splice(i, 1);
         orderArr.splice(i + 1, 0, currentCard[0]);
         render();
-        console.log('yo')
       }
-    })
+    });
+      cardAction2.addEventListener('click', function (event) {
+      if (i !== 0) {
+        let currentCard = orderArr.splice(i, 1);
+        orderArr.splice(i - 1, 0, currentCard[0]);
+        render();
+        console.log('yo!');
+      }
+    });
+     cardAction3.addEventListener('click', function (event) {
+      orderArr.splice(i, 1);
+      render();
+    });
   });
   saveOrders();
 }
