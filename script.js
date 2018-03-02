@@ -1,11 +1,13 @@
+//querySelector('[name="size]')
+//$(form).serializeArray();
+
 let form = document.querySelector("form");
-let gridContainer = document.querySelector('.grid-container');
+let orderContainer = document.querySelector('.grid-container');
 let orderArr = [];
 let api = 'https://dc-coffeerun.herokuapp.com/api/coffeeorders';
 
-form.addEventListener('submit', function (event) {
-  event.preventDefault();
-  let orderObj = {};
+let getFormData = function () {
+  let formData = {};
   for (element of form.elements) {
     if (element.type === "radio" && element.checked === true) {
       orderObj[element.name] = element.value;
@@ -13,7 +15,13 @@ form.addEventListener('submit', function (event) {
       orderObj[element.name] = element.value;
     }
   }
-  postData(orderObj);
+  return formData;
+}
+
+form.addEventListener('submit', function (event) {
+  event.preventDefault();
+  let formData = getFormData();
+  postData(formData);
   getData(render);
 });
 
@@ -28,10 +36,16 @@ let getData = function (callback) {
     for (i in response) {
       orderArr.push(response[i]);
     }
+    //    callback(ordersdata);
     callback();
   });
 }
-
+//    getData(function(orders) {
+//      render(orders);
+//    });
+//  getData(function(orders) {
+//      render(orders, orderContainer);
+//    });
 document.addEventListener('DOMContentLoaded', function (event) {
   getData(render);
 });
@@ -41,56 +55,49 @@ let render = function () { //pass in orderArr later
 
   orderArr.forEach((obj, i) => {
     let cardObj = createCard(obj);
-    gridContainer.appendChild(cardObj.card);
+    orderContainer.appendChild(cardObj.card);
 
     let notLastIdx = i < orderArr.length - 1;
-    let notFirstIdx = i !== 0; 
+    let notFirstIdx = i !== 0;
     
-    let moveCard = function (condition, direction) {
+    cardObj.cta1.addEventListener('click', function (event) {
+      moveCard(notLastIdx, 1, i);
+      render();
+    });
+    cardObj.cta2.addEventListener('click', function (event) {
+      moveCard(notFirstIdx, -1, i);
+      render();
+    });
+
+    cardObj.cta3.addEventListener('click', function (event) {
+      setTimeout(deleteCard, 3000, cardObj.key, getData);
+      // setTimeout(deleteCard, 3000, cardObj.key);
+    });
+  })
+}
+
+let moveCard = function (condition, direction, index) {
+      console.log( condition);
       if (condition) {
-        let currentCard = orderArr.splice(i, 1);
-        orderArr.splice(i + direction, 0, currentCard[0]);
+        let currentCard = orderArr.splice(index, 1);
+        orderArr.splice(index + direction, 0, currentCard[0]);
         render();
       }
     }
 
-    cardObj.cta1.addEventListener('click', function (event) {
-      moveCard(notLastIdx, 1);
-      render();
-    });
-    cardObj.cta2.addEventListener('click', function (event) {
-      moveCard(notFirstIdx, -1);
-      render();
-
-    });
-
-
-    cardObj.cta3.addEventListener('click', function (event) {
-      //      cardAction3.removeEventListener("click");  
-      //      setTimeout(function () {   }, 3000);
-      $.ajax({
-        url: `${api}/${obj.emailAddress}`,
-        type: 'DELETE',
-        success: function (result) {
-          console.log("good job- deleted")
-        }
-      });
-      orderArr.splice(i, 1);
-      render();
-
-    });
+let deleteCard = function (key, callback) {
+  console.log(callback);
+  console.log(key);
+  $.ajax({
+    url: `${api}/${key}`,
+    type: 'DELETE',
+    success: function (result) {
+      //console.log(callback);
+      callback(render);
+      console.log('nice!')
+    }
   });
 }
-//  saveOrders();
-
-//let saveOrders = function () {
-//  localStorage.setItem("orderArr", JSON.stringify(orderArr));
-//}
-//document.addEventListener( 'DOMContentLoaded', function( event ) {
-//  var getArray = localStorage.getItem("orderArr");
-//  orderArr = (getArray) ? JSON.parse(getArray) : [];
-//  render();
-//});
 
 let createCard = function (obj) {
   let cardDiv = document.createElement('div');
@@ -145,6 +152,7 @@ let createCard = function (obj) {
 
   let cardObj = {
     card: cardWrapperDiv,
+    key: obj.emailAddress,
     cta1: cardAction1,
     cta2: cardAction2,
     cta3: cardAction3
@@ -152,3 +160,17 @@ let createCard = function (obj) {
 
   return cardObj;
 }
+
+
+
+
+//  saveOrders();
+
+//let saveOrders = function () {
+//  localStorage.setItem("orderArr", JSON.stringify(orderArr));
+//}
+//document.addEventListener( 'DOMContentLoaded', function( event ) {
+//  var getArray = localStorage.getItem("orderArr");
+//  orderArr = (getArray) ? JSON.parse(getArray) : [];
+//  render();
+//});
