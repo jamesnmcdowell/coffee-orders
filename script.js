@@ -1,22 +1,11 @@
 //querySelector('[name="size]')
 //$(form).serializeArray();
+//let orderArr = [];
 
 let form = document.querySelector("form");
 let orderContainer = document.querySelector('.grid-container');
-let orderArr = [];
 let api = 'https://dc-coffeerun.herokuapp.com/api/coffeeorders';
 
-let getFormData = function () {
-  let formData = {};
-  for (element of form.elements) {
-    if (element.type === "radio" && element.checked === true) {
-      orderObj[element.name] = element.value;
-    } else if (element.type !== 'radio' && element.nodeName !== "BUTTON" && !element.classList.contains('select-dropdown')) {
-      orderObj[element.name] = element.value;
-    }
-  }
-  return formData;
-}
 
 form.addEventListener('submit', function (event) {
   event.preventDefault();
@@ -25,6 +14,18 @@ form.addEventListener('submit', function (event) {
   getData(render);
 });
 
+let getFormData = function () {
+  let formData = {};
+  for (element of form.elements) {
+    if (element.type === "radio" && element.checked === true) {
+      formData[element.name] = element.value;
+    } else if (element.type !== 'radio' && element.nodeName !== "BUTTON" && !element.classList.contains('select-dropdown')) {
+      formData[element.name] = element.value;
+    }
+  }
+  return formData;
+}
+
 let postData = function (orderData) {
   $.post(api, orderData, function (response) {});
 }
@@ -32,40 +33,35 @@ let postData = function (orderData) {
 let getData = function (callback) {
   $.get(api, function (response) {
     //object.values
-    orderArr = [];
+    let arryBackend = [];
     for (i in response) {
-      orderArr.push(response[i]);
+      arryBackend.push(response[i]);
     }
-    //    callback(ordersdata);
-    callback();
+    callback(arryBackend);    
   });
 }
-//    getData(function(orders) {
-//      render(orders);
-//    });
+
+
+
 //  getData(function(orders) {
 //      render(orders, orderContainer);
 //    });
-document.addEventListener('DOMContentLoaded', function (event) {
-  getData(render);
-});
 
-let render = function () { //pass in orderArr later
-  document.querySelectorAll(".card").forEach(e => e.remove());
-
-  orderArr.forEach((obj, i) => {
-    let cardObj = createCard(obj);
+let render = function (orderArry) { 
+  orderContainer.querySelectorAll(":scope > div").forEach(e => e.remove());
+  orderArry.forEach((card, i) => {
+    let cardObj = createCard(card);
     orderContainer.appendChild(cardObj.card);
 
-    let notLastIdx = i < orderArr.length - 1;
-    let notFirstIdx = i !== 0;
-    
+    let isNotLastIdx = i < orderArry.length - 1;
+    let isNotFirstIdx = i !== 0;
+
     cardObj.cta1.addEventListener('click', function (event) {
-      moveCard(notLastIdx, 1, i);
+      moveCard(isNotLastIdx, 1, i, orderArry);
       render();
     });
     cardObj.cta2.addEventListener('click', function (event) {
-      moveCard(notFirstIdx, -1, i);
+      moveCard(isNotFirstIdx, -1, i, orderArry);
       render();
     });
 
@@ -76,15 +72,6 @@ let render = function () { //pass in orderArr later
   })
 }
 
-let moveCard = function (condition, direction, index) {
-      console.log( condition);
-      if (condition) {
-        let currentCard = orderArr.splice(index, 1);
-        orderArr.splice(index + direction, 0, currentCard[0]);
-        render();
-      }
-    }
-
 let deleteCard = function (key, callback) {
   console.log(callback);
   console.log(key);
@@ -92,11 +79,19 @@ let deleteCard = function (key, callback) {
     url: `${api}/${key}`,
     type: 'DELETE',
     success: function (result) {
-      //console.log(callback);
       callback(render);
-      console.log('nice!')
+      console.log('deleted')
     }
   });
+}
+
+let moveCard = function (condition, direction, index, orderArry) {
+  console.log(condition);
+  if (condition) {
+    let currentCard = orderArry.splice(index, 1);
+    orderArry.splice(index + direction, 0, currentCard[0]);
+    render();
+  }
 }
 
 let createCard = function (obj) {
@@ -161,6 +156,9 @@ let createCard = function (obj) {
   return cardObj;
 }
 
+document.addEventListener('DOMContentLoaded', function (event) {
+  getData(render);
+});
 
 
 
