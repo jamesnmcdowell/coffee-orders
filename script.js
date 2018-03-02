@@ -36,48 +36,52 @@ document.addEventListener('DOMContentLoaded', function (event) {
   getData(render);
 });
 
-let render = function () {  //pass in orderArr later
+let render = function () { //pass in orderArr later
   document.querySelectorAll(".card").forEach(e => e.remove());
 
-  orderArr.forEach((obj, i) => {  
+  orderArr.forEach((obj, i) => {
     let cardObj = createCard(obj);
     gridContainer.appendChild(cardObj.card);
+
+    let notLastIdx = i < orderArr.length - 1;
+    let notFirstIdx = i !== 0; 
     
-    cardObj.cta1.addEventListener('click', function (event) {
-      //move card give direction to go and call render-- remove render
-      if (i < orderArr.length - 1) {
+    let moveCard = function (condition, direction) {
+      if (condition) {
         let currentCard = orderArr.splice(i, 1);
-        orderArr.splice(i + 1, 0, currentCard[0]);
+        orderArr.splice(i + direction, 0, currentCard[0]);
         render();
       }
+    }
+
+    cardObj.cta1.addEventListener('click', function (event) {
+      moveCard(notLastIdx, 1);
+      render();
     });
     cardObj.cta2.addEventListener('click', function (event) {
-      if (i !== 0) {
-        let currentCard = orderArr.splice(i, 1);
-        orderArr.splice(i - 1, 0, currentCard[0]);
-        render();
-        console.log('yo!');
-      }
+      moveCard(notFirstIdx, -1);
+      render();
+
     });
-    
-    
+
+
     cardObj.cta3.addEventListener('click', function (event) {
       //      cardAction3.removeEventListener("click");  
-//      setTimeout(function () {   }, 3000);
-        $.ajax({
-          url: `${api}/${obj.emailAddress}`,
-          type: 'DELETE',
-          success: function (result) {
-            console.log("good job- deleted")
-          }
-        });
-        orderArr.splice(i, 1);
-        render();
-    
+      //      setTimeout(function () {   }, 3000);
+      $.ajax({
+        url: `${api}/${obj.emailAddress}`,
+        type: 'DELETE',
+        success: function (result) {
+          console.log("good job- deleted")
+        }
+      });
+      orderArr.splice(i, 1);
+      render();
+
     });
   });
-  }
-  //  saveOrders();
+}
+//  saveOrders();
 
 //let saveOrders = function () {
 //  localStorage.setItem("orderArr", JSON.stringify(orderArr));
@@ -138,12 +142,13 @@ let createCard = function (obj) {
   cardAction1.textContent = "Delay";
   cardAction2.textContent = "Prioritize";
   cardAction3.textContent = "Delete";
-  
-  let cardObj = {card: cardWrapperDiv, 
-                    cta1: cardAction1, 
-                    cta2: cardAction2,
-                    cta3: cardAction3
-                   };
-  
-  return cardObj; 
+
+  let cardObj = {
+    card: cardWrapperDiv,
+    cta1: cardAction1,
+    cta2: cardAction2,
+    cta3: cardAction3
+  };
+
+  return cardObj;
 }
