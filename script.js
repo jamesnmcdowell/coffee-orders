@@ -15,21 +15,22 @@ let getFormData = function () {
 }
 
 let postData = function (orderData) {
-  $.post(api, orderData, function (response) {});
+  return $.post(api, orderData);
 }
 
-let getData = function (callback) {
-  $.get(api, function (response) {
+let getData = function () {
+  let responsePromise = $.get(api);
+  return responsePromise.then(function(response) {
     let arryBackend =  Object.values(response);
-    callback(arryBackend);    
-  });
+    return arryBackend;
+  })
 }
 
 form.addEventListener('submit', function (event) {
   event.preventDefault();
   let formData = getFormData();
-  postData(formData);
-  getData(render);
+  postData(formData).then(console.log('posted!'));
+  getData().then(render);
 });
 
 let render = function (orderArry) { 
@@ -43,15 +44,18 @@ let render = function (orderArry) {
 
     cardObj.cta1.addEventListener('click', function (event) {
       moveCard(isNotLastIdx, 1, i, orderArry);
-      render(orderArry);
+      getData().then(render);
     });
     cardObj.cta2.addEventListener('click', function (event) {
       moveCard(isNotFirstIdx, -1, i, orderArry);
-      render( orderArry);
+      getData().then(render);
     });
 
     cardObj.cta3.addEventListener('click', function (event) {
       setTimeout(deleteCard, 3000, cardObj.key, getData);
+      getData().then(render);
+      
+      
     });
   })
 }
@@ -67,6 +71,7 @@ let deleteCard = function (key, callback) {
       console.log('deleted')
     }
   });
+  
 }
 
 let moveCard = function (condition, direction, index, orderArry) {
@@ -138,17 +143,5 @@ let createCard = function (obj) {
 }
 
 document.addEventListener('DOMContentLoaded', function (event) {
-  getData(render);
+  getData().then(render);
 });
-
-
-//  saveOrders();
-
-//let saveOrders = function () {
-//  localStorage.setItem("orderArr", JSON.stringify(orderArr));
-//}
-//document.addEventListener( 'DOMContentLoaded', function( event ) {
-//  var getArray = localStorage.getItem("orderArr");
-//  orderArr = (getArray) ? JSON.parse(getArray) : [];
-//  render();
-//});
