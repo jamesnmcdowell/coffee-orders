@@ -92,12 +92,30 @@ section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   grid-gap: 1rem;
+  
+}
+.grid-item {
+  padding: 2em;
 }
 
 .card{
+  display: flex;
+  flex-wrap: wrap;  
+  justify-content: space-between;
+  flex: 1 1 100%;
+  
+  
   font-size: .7em;
 }
-
+.card > * {
+  flex: 1 1 100%;
+  
+}
+.card-action {
+  align-self: flex-end;
+  width: 100%;
+//  align-self: end;
+}
 
 
 
