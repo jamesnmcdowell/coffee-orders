@@ -1,18 +1,6 @@
-//querySelector('[name="size]')
-//$(form).serializeArray();
-//let orderArr = [];
-
 let form = document.querySelector("form");
 let orderContainer = document.querySelector('.grid-container');
 let api = 'https://dc-coffeerun.herokuapp.com/api/coffeeorders';
-
-
-form.addEventListener('submit', function (event) {
-  event.preventDefault();
-  let formData = getFormData();
-  postData(formData);
-  getData(render);
-});
 
 let getFormData = function () {
   let formData = {};
@@ -32,20 +20,17 @@ let postData = function (orderData) {
 
 let getData = function (callback) {
   $.get(api, function (response) {
-    //object.values
-    let arryBackend = [];
-    for (i in response) {
-      arryBackend.push(response[i]);
-    }
+    let arryBackend =  Object.values(response);
     callback(arryBackend);    
   });
 }
 
-
-
-//  getData(function(orders) {
-//      render(orders, orderContainer);
-//    });
+form.addEventListener('submit', function (event) {
+  event.preventDefault();
+  let formData = getFormData();
+  postData(formData);
+  getData(render);
+});
 
 let render = function (orderArry) { 
   orderContainer.querySelectorAll(":scope > div").forEach(e => e.remove());
@@ -58,16 +43,15 @@ let render = function (orderArry) {
 
     cardObj.cta1.addEventListener('click', function (event) {
       moveCard(isNotLastIdx, 1, i, orderArry);
-      render();
+      render(orderArry);
     });
     cardObj.cta2.addEventListener('click', function (event) {
       moveCard(isNotFirstIdx, -1, i, orderArry);
-      render();
+      render( orderArry);
     });
 
     cardObj.cta3.addEventListener('click', function (event) {
       setTimeout(deleteCard, 3000, cardObj.key, getData);
-      // setTimeout(deleteCard, 3000, cardObj.key);
     });
   })
 }
@@ -86,11 +70,9 @@ let deleteCard = function (key, callback) {
 }
 
 let moveCard = function (condition, direction, index, orderArry) {
-  console.log(condition);
   if (condition) {
     let currentCard = orderArry.splice(index, 1);
     orderArry.splice(index + direction, 0, currentCard[0]);
-    render();
   }
 }
 
@@ -124,7 +106,6 @@ let createCard = function (obj) {
   cardActionDiv.appendChild(cardAction3);
   cardWrapperDiv.appendChild(cardContentDiv);
   cardWrapperDiv.appendChild(cardActionDiv);
-  //    cardDiv.appendChild(cardWrapperDiv);
 
   cardTitle.classList.add("card-title");
   cardActionDiv.classList.add("card-action");
@@ -159,7 +140,6 @@ let createCard = function (obj) {
 document.addEventListener('DOMContentLoaded', function (event) {
   getData(render);
 });
-
 
 
 //  saveOrders();
