@@ -15,25 +15,29 @@ let getFormData = function () {
 }
 
 let postData = function (orderData) {
-  return $.post(api, orderData);
-}
+  return fetch(api, {
+    method: 'POST',
+    body: JSON.stringify(orderData),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  })
+};
 
 let getData = function () {
-  let responsePromise = $.get(api);
-  return responsePromise.then(function(response) {
-    let arryBackend =  Object.values(response);
-    return arryBackend;
-  })
+  let newPromise = fetch(api)
+    .then(response => response.json())
+    .then(responseJson => Object.values(responseJson))
+  return newPromise;
 }
 
 form.addEventListener('submit', function (event) {
   event.preventDefault();
   let formData = getFormData();
-  postData(formData).then(console.log('posted!'));
-  getData().then(render);
+  postData(formData).then(getData).then(render);
 });
 
-let render = function (orderArry) { 
+let render = function (orderArry) {
   orderContainer.querySelectorAll(":scope > div").forEach(e => e.remove());
   orderArry.forEach((card, i) => {
     let cardObj = createCard(card);
@@ -52,26 +56,23 @@ let render = function (orderArry) {
     });
 
     cardObj.cta3.addEventListener('click', function (event) {
-      setTimeout(deleteCard, 3000, cardObj.key, getData);
-      getData().then(render);
-      
-      
+      let deletePromise = deleteCard(cardObj.key);
+      delayFor(3000).then(deletePromise).then(getData).then(render) 
     });
   })
 }
 
-let deleteCard = function (key, callback) {
-  console.log(callback);
+let delayFor = function (ms) {
+  return new Promise((resolve) => { 
+    setTimeout(resolve, ms);
+  })
+  };
+
+let deleteCard = function (key) {
   console.log(key);
-  $.ajax({
-    url: `${api}/${key}`,
-    type: 'DELETE',
-    success: function (result) {
-      callback(render);
-      console.log('deleted')
-    }
-  });
-  
+  fetch(`${api}/${key}`, {
+      method: 'DELETE'
+    })
 }
 
 let moveCard = function (condition, direction, index, orderArry) {
