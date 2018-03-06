@@ -2,19 +2,43 @@ let form = document.querySelector("form");
 let orderContainer = document.querySelector('.grid-container');
 let api = 'https://dc-coffeerun.herokuapp.com/api/coffeeorders';
 
-let getFormData = function () {
-  let formData = {};
-  for (element of form.elements) {
-    if (element.type === "radio" && element.checked === true) {
-      formData[element.name] = element.value;
-    } else if (element.type !== 'radio' && element.nodeName !== "BUTTON" && !element.classList.contains('select-dropdown')) {
-      formData[element.name] = element.value;
+let isValidElement = element => element.name && element.value;
+let isValidValue = element => !['checkbox', 'radio'].includes(element.type) || element.checked;
+let isCheckbox = element => element.type === 'checkbox';
+
+let formToJSON = elements => [].reduce.call(elements, (data, element) => {
+  if (isValidElement(element) && isValidValue(element)) {
+    if (isCheckbox(element)) {
+      data[element.name] = (data[element.name] || []).concat(element.value);
+    } else {
+      data[element.name] = element.value;
     }
   }
-  return formData;
-}
+  return data;
+}, {});
 
-let postData = function (orderData) {
+let handleFormSubmit = event => {
+  event.preventDefault();
+  console.log(form.elements);
+  let data = formToJSON(form.elements);
+  console.log(data);
+  postData(data).then(getData).then(render);
+};
+
+form.addEventListener('submit', handleFormSubmit);
+
+document.addEventListener('DOMContentLoaded', function (event) {
+  getData().then(render);
+});
+
+let getData = () => {
+  let newPromise = fetch(api)
+    .then(response => response.json())
+    .then(responseJson => Object.values(responseJson))
+  return newPromise;
+};
+
+let postData = orderData => {
   return fetch(api, {
     method: 'POST',
     body: JSON.stringify(orderData),
@@ -24,20 +48,7 @@ let postData = function (orderData) {
   })
 };
 
-let getData = function () {
-  let newPromise = fetch(api)
-    .then(response => response.json())
-    .then(responseJson => Object.values(responseJson))
-  return newPromise;
-}
-
-form.addEventListener('submit', function (event) {
-  event.preventDefault();
-  let formData = getFormData();
-  postData(formData).then(getData).then(render);
-});
-
-let render = function (orderArry) {
+let render = orderArry => {
   orderContainer.querySelectorAll(":scope > div").forEach(e => e.remove());
   orderArry.forEach((card, i) => {
     let cardObj = createCard(card);
@@ -46,43 +57,38 @@ let render = function (orderArry) {
     let isNotLastIdx = i < orderArry.length - 1;
     let isNotFirstIdx = i !== 0;
 
-    cardObj.cta1.addEventListener('click', function (event) {
+    cardObj.cta1.addEventListener('click', event => {
       moveCard(isNotLastIdx, 1, i, orderArry);
       getData().then(render);
     });
-    cardObj.cta2.addEventListener('click', function (event) {
+    cardObj.cta2.addEventListener('click', event => {
       moveCard(isNotFirstIdx, -1, i, orderArry);
       getData().then(render);
     });
 
-    cardObj.cta3.addEventListener('click', function (event) {
+    cardObj.cta3.addEventListener('click', event => {
       let deletePromise = deleteCard(cardObj.key);
-      delayFor(3000).then(deletePromise).then(getData).then(render) 
+      delayFor(3000).then(deletePromise).then(getData).then(render)
     });
   })
-}
-
-let delayFor = function (ms) {
-  return new Promise((resolve) => { 
-    setTimeout(resolve, ms);
-  })
-  };
-
-let deleteCard = function (key) {
-  console.log(key);
-  fetch(`${api}/${key}`, {
-      method: 'DELETE'
-    })
-}
+};
 
 let moveCard = function (condition, direction, index, orderArry) {
   if (condition) {
+    console.log(`${direction}  ${index}  ${orderArry}  ${condition}`);
     let currentCard = orderArry.splice(index, 1);
     orderArry.splice(index + direction, 0, currentCard[0]);
   }
 }
+let delayFor = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-let createCard = function (obj) {
+let deleteCard = function (key) {
+  fetch(`${api}/${key}`, {
+    method: 'DELETE'
+  })
+};
+
+let createCard = obj => {
   let cardDiv = document.createElement('div');
   let cardWrapperDiv = document.createElement('div');
   let cardContentDiv = document.createElement('div');
@@ -141,8 +147,4 @@ let createCard = function (obj) {
   };
 
   return cardObj;
-}
-
-document.addEventListener('DOMContentLoaded', function (event) {
-  getData().then(render);
-});
+};
