@@ -61,6 +61,7 @@ let render = orderArry => {
       moveCard(isNotLastIdx, 1, i, orderArry);
       getData().then(render);
     });
+    
     cardObj.cta2.addEventListener('click', event => {
       moveCard(isNotFirstIdx, -1, i, orderArry);
       getData().then(render);
