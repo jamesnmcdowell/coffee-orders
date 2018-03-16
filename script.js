@@ -19,9 +19,7 @@ let formToJSON = elements => [].reduce.call(elements, (data, element) => {
 
 let handleFormSubmit = event => {
   event.preventDefault();
-  console.log(form.elements);
   let data = formToJSON(form.elements);
-  console.log(data);
   postData(data).then(getData).then(render);
 };
 
@@ -58,18 +56,20 @@ let render = orderArry => {
     let isNotFirstIdx = i !== 0;
 
     cardObj.cta1.addEventListener('click', event => {
+      console.log(i);
       moveCard(isNotLastIdx, 1, i, orderArry);
       getData().then(render);
     });
     
     cardObj.cta2.addEventListener('click', event => {
+      console.log(i);
       moveCard(isNotFirstIdx, -1, i, orderArry);
       getData().then(render);
     });
 
     cardObj.cta3.addEventListener('click', event => {
       let deletePromise = deleteCard(cardObj.key);
-      delayFor(3000).then(deletePromise).then(getData).then(render)
+      delayFor(100).then(deletePromise).then(getData).then(render)
     });
   })
 };
@@ -79,6 +79,7 @@ let moveCard = function (condition, direction, index, orderArry) {
     console.log(`${direction}  ${index}  ${orderArry}  ${condition}`);
     let currentCard = orderArry.splice(index, 1);
     orderArry.splice(index + direction, 0, currentCard[0]);
+    console.log(orderArry);
   }
 }
 let delayFor = ms => new Promise(resolve => setTimeout(resolve, ms));
